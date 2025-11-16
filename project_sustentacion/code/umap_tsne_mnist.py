@@ -53,7 +53,7 @@ else:
     plt.close()
 
 # Fast t-SNE
-tsne = TSNE(n_components=2, init='pca', random_state=42, perplexity=30, n_iter=500)
+tsne = TSNE(n_components=2, init='pca', random_state=42, perplexity=30, max_iter=500)
 X_tsne = tsne.fit_transform(Xs)
 plt.figure(figsize=(8,6))
 scatter = plt.scatter(X_tsne[:,0], X_tsne[:,1], c=y, s=10, cmap='tab10')
