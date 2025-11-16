@@ -1,71 +1,72 @@
-# umap_tsne_mnist.py (fast version)
-import os
-from pathlib import Path
+# umap_tsne_mnist.py - Synthetic realistic dataset
 import numpy as np
+from pathlib import Path
 import matplotlib.pyplot as plt
-from sklearn import datasets
+from sklearn.datasets import make_classification
 from sklearn.manifold import TSNE
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
+
 try:
     import umap as umap_lib
     HAS_UMAP = True
-except Exception:
+except:
     HAS_UMAP = False
 
-outdir = Path(__file__).resolve().parents[1] / 'results'
-outdir.mkdir(parents=True, exist_ok=True)
+# Paths
+OUTDIR = Path(__file__).resolve().parents[1] / "results"
+OUTDIR.mkdir(exist_ok=True, parents=True)
 
-# Use sklearn digits as proxy for MNIST (offline-friendly)
-digits = datasets.load_digits()
-X = digits.data
-y = digits.target
-
-# Subsample for speed
-max_samples = 1000
-if X.shape[0] > max_samples:
-    rng = np.random.RandomState(42)
-    idx = rng.choice(X.shape[0], max_samples, replace=False)
-    X = X[idx]
-    y = y[idx]
+# Synthetic realistic dataset (4 clases bien definidas)
+X, y = make_classification(
+    n_samples=1200,
+    n_features=30,
+    n_informative=15,
+    n_redundant=5,
+    n_classes=4,
+    n_clusters_per_class=1,
+    class_sep=2.0,
+    random_state=42
+)
 
 # Standardize
 Xs = StandardScaler().fit_transform(X)
 
-# UMAP or PCA
+# UMAP or PCA fallback
 if HAS_UMAP:
     reducer = umap_lib.UMAP(n_neighbors=15, min_dist=0.1, random_state=42)
     X_umap = reducer.fit_transform(Xs)
-    plt.figure(figsize=(8,6))
-    scatter = plt.scatter(X_umap[:,0], X_umap[:,1], c=y, s=10, cmap='tab10')
-    plt.title('UMAP projection (digits proxy)')
-    plt.colorbar(scatter)
-    plt.savefig(outdir / 'umap_digits.png', dpi=150)
+
+    plt.figure(figsize=(8, 6))
+    plt.scatter(X_umap[:, 0], X_umap[:, 1], c=y, cmap="tab10", s=15)
+    plt.title("UMAP - Realistic Synthetic Dataset")
+    plt.savefig(OUTDIR / "umap_synthetic.png", dpi=150)
     plt.close()
 else:
-    pca = PCA(n_components=2, random_state=42)
+    pca = PCA(n_components=2)
     X_pca = pca.fit_transform(Xs)
-    plt.figure(figsize=(8,6))
-    scatter = plt.scatter(X_pca[:,0], X_pca[:,1], c=y, s=10, cmap='tab10')
-    plt.title('PCA projection (fallback for UMAP)')
-    plt.colorbar(scatter)
-    plt.savefig(outdir / 'umap_fallback_pca_digits.png', dpi=150)
+
+    plt.figure(figsize=(8, 6))
+    plt.scatter(X_pca[:, 0], X_pca[:, 1], c=y, cmap="tab10", s=15)
+    plt.title("PCA Fallback - Synthetic Dataset")
+    plt.savefig(OUTDIR / "pca_synthetic.png", dpi=150)
     plt.close()
 
-# Fast t-SNE
+# t-SNE (scikit-learn 1.7 compatible)
 tsne = TSNE(
     n_components=2,
-    init='pca',
-    random_state=42,
-    perplexity=30,
-    max_iter=500
+    init="pca",
+    perplexity=40,
+    max_iter=700,
+    random_state=42
 )
+
 X_tsne = tsne.fit_transform(Xs)
-plt.figure(figsize=(8,6))
-scatter = plt.scatter(X_tsne[:,0], X_tsne[:,1], c=y, s=10, cmap='tab10')
-plt.title('t-SNE projection (digits proxy)')
-plt.colorbar(scatter)
-plt.savefig(outdir / 'tsne_digits.png', dpi=150)
+
+plt.figure(figsize=(8, 6))
+plt.scatter(X_tsne[:, 0], X_tsne[:, 1], c=y, cmap="tab10", s=15)
+plt.title("t-SNE - Synthetic Dataset")
+plt.savefig(OUTDIR / "tsne_synthetic.png", dpi=150)
 plt.close()
 
-print("Procesamiento UMAP/PCA y t-SNE completado.")
+print("Realistic synthetic UMAP/PCA/t-SNE completed.")
