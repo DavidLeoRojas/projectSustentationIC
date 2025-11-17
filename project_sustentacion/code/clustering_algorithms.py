@@ -64,7 +64,7 @@ for name, algo in algorithms.items():
     # Plot
     plt.figure(figsize=(7, 5))
     plt.scatter(X[:, 0], X[:, 1], c=labels, cmap="tab10", s=10)
-    plt.title(f"{name.upper()} - Realistic Dataset")
+    plt.title(f"{name.upper()} -Dataset")
     plt.savefig(OUTDIR / f"cluster_{name}.png", dpi=150)
     plt.close()
 

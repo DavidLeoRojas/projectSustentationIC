@@ -39,7 +39,7 @@ if HAS_UMAP:
 
     plt.figure(figsize=(8, 6))
     plt.scatter(X_umap[:, 0], X_umap[:, 1], c=y, cmap="tab10", s=15)
-    plt.title("UMAP - Realistic Synthetic Dataset")
+    plt.title("UMAP")
     plt.savefig(OUTDIR / "umap_synthetic.png", dpi=150)
     plt.close()
 else:
